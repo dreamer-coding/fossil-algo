@@ -55,8 +55,7 @@ struct fossil_ml_model {
 // Utilities
 // ======================================================
 
-static bool
-algo_eq(const char *a, const char *b)
+static bool algo_eq(const char *a, const char *b)
 {
     return a && b && strcmp(a, b) == 0;
 }
@@ -65,8 +64,7 @@ algo_eq(const char *a, const char *b)
 // Linear Regression
 // ======================================================
 
-static int
-linear_train(
+static int linear_train(
     fossil_ml_model_t *m,
     fossil_ml_dataset_t *d,
     fossil_ml_metric_fn metric,
@@ -109,8 +107,7 @@ linear_train(
     return 0;
 }
 
-static int
-linear_predict(
+static int linear_predict(
     fossil_ml_model_t *m,
     fossil_ml_dataset_t *d
 ) {
@@ -130,8 +127,7 @@ linear_predict(
 // K-Means
 // ======================================================
 
-static double
-dist2(const double *a, const double *b, size_t n)
+static double dist2(const double *a, const double *b, size_t n)
 {
     double s = 0.0;
     for (size_t i = 0; i < n; i++) {
@@ -141,8 +137,7 @@ dist2(const double *a, const double *b, size_t n)
     return s;
 }
 
-static int
-kmeans_train(
+static int kmeans_train(
     fossil_ml_model_t *m,
     fossil_ml_dataset_t *d,
     fossil_ml_metric_fn metric,
@@ -211,8 +206,7 @@ kmeans_train(
 // Public Exec Interface
 // ======================================================
 
-int
-fossil_algorithm_ml_exec(
+int fossil_algorithm_ml_exec(
     fossil_ml_model_t *model,
     fossil_ml_dataset_t *dataset,
     const char *algorithm_id,
@@ -244,8 +238,7 @@ fossil_algorithm_ml_exec(
 // Model Lifecycle
 // ======================================================
 
-fossil_ml_model_t *
-fossil_algorithm_ml_model_create(const char *algorithm_id)
+fossil_ml_model_t *fossil_algorithm_ml_model_create(const char *algorithm_id)
 {
     if (!algorithm_id) return NULL;
 
@@ -267,15 +260,13 @@ fossil_algorithm_ml_model_destroy(fossil_ml_model_t *model)
 // Utility API
 // ======================================================
 
-bool
-fossil_algorithm_ml_supported(const char *algorithm_id)
+bool fossil_algorithm_ml_supported(const char *algorithm_id)
 {
     return algo_eq(algorithm_id, "linear-regression") ||
            algo_eq(algorithm_id, "kmeans");
 }
 
-bool
-fossil_algorithm_ml_requires_labels(const char *algorithm_id)
+bool fossil_algorithm_ml_requires_labels(const char *algorithm_id)
 {
     return algo_eq(algorithm_id, "linear-regression") ||
            algo_eq(algorithm_id, "logistic-regression") ||
