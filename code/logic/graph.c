@@ -48,17 +48,6 @@ struct fossil_graph {
 // Internal Utilities
 // ======================================================
 
-static fossil_graph_edge_node_t *
-edge_node_create(uint64_t to, double weight)
-{
-    fossil_graph_edge_node_t *e = malloc(sizeof(*e));
-    if (!e) return NULL;
-    e->to = to;
-    e->weight = weight;
-    e->next = NULL;
-    return e;
-}
-
 static bool algorithm_equals(const char *a, const char *b)
 {
     return a && b && strcmp(a, b) == 0;
