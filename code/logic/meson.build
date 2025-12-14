@@ -12,7 +12,8 @@ fossil_algorithm_lib = library('fossil_algo',
         'search.c',
         'cstring.c',
         'shuffle.c',
-        'graph.c'
+        'graph.c',
+        'dynamic.c'
         ),
     install: true,
     dependencies: dep,
