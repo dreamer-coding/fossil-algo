@@ -30,6 +30,5 @@
 #include "search.h"
 #include "graph.h"
 #include "sort.h"
-#include "lm.h"
 
 #endif /* FOSSIL_ALGORITHM_FRAMEWORK_H */
