@@ -153,7 +153,7 @@ FOSSIL_TEST_GROUP(cpp_graph_tests) {
     FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_requires_weights_on_unweighted);
     FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_invalid_node_ids);
     FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_bfs_and_dfs_empty_graph);
-    // FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_bfs_and_dfs_null_visitor);
+    FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_bfs_and_dfs_null_visitor);
     FOSSIL_TEST_ADD(cpp_algorithm_graph_fixture, cpp_test_graph_exec_bfs_and_dfs_with_visitor);
 
     FOSSIL_TEST_REGISTER(cpp_algorithm_graph_fixture);
