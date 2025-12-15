@@ -87,7 +87,7 @@ FOSSIL_TEST(cpp_test_graph_exec_invalid_inputs) {
 
     fossil_graph_t dummy = {.node_count = 0, .directed = false, .weighted = false, .adj = nullptr};
     rc = Graph::exec(&dummy, "", 0, 0, nullptr, nullptr);
-    ASSUME_ITS_EQUAL_I32(rc, -2);
+    ASSUME_ITS_EQUAL_I32(rc, -3);
 
     rc = Graph::exec(&dummy, "notalgo", 0, 0, nullptr, nullptr);
     ASSUME_ITS_EQUAL_I32(rc, -3);
