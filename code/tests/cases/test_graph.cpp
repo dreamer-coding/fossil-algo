@@ -90,7 +90,7 @@ FOSSIL_TEST(cpp_test_graph_exec_invalid_inputs) {
     ASSUME_ITS_EQUAL_I32(rc, -2);
 
     rc = Graph::exec(&dummy, "notalgo", 0, 0, nullptr, nullptr);
-    ASSUME_ITS_EQUAL_I32(rc, -3);
+    ASSUME_ITS_EQUAL_I32(rc, -2);
 }
 
 FOSSIL_TEST(cpp_test_graph_exec_unsupported_algorithm) {

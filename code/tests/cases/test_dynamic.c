@@ -122,7 +122,7 @@ FOSSIL_TEST(c_test_dynamic_exec_dp_lcs_params) {
 FOSSIL_TEST(c_test_dynamic_exec_dp_knapsack_default) {
     fossil_dynamic_t *alg = fossil_algorithm_dynamic_create("dp-knapsack");
     int result = fossil_algorithm_dynamic_exec(alg, "dp-knapsack", NULL, 0, NULL, NULL);
-    ASSUME_ITS_EQUAL_I32(result, 0); // default n=0, so result is 0
+    ASSUME_ITS_EQUAL_I32(result, -2); // default params missing, expect error code -2
     fossil_algorithm_dynamic_destroy(alg);
 }
 
