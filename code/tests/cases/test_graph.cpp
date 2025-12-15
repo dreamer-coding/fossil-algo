@@ -100,13 +100,13 @@ FOSSIL_TEST(cpp_test_graph_exec_unsupported_algorithm) {
 }
 
 FOSSIL_TEST(cpp_test_graph_exec_requires_weights_on_unweighted) {
-    fossil_graph_t dummy = {.node_count = 2, .weighted = false};
+    fossil_graph_t dummy = {.node_count = 2, .directed = false, .weighted = false, .adj = nullptr};
     int rc = Graph::exec(&dummy, "dijkstra", 0, 1, nullptr, nullptr);
     ASSUME_ITS_EQUAL_I32(rc, -4);
 }
 
 FOSSIL_TEST(cpp_test_graph_exec_invalid_node_ids) {
-    fossil_graph_t dummy = {.node_count = 2, .weighted = true};
+    fossil_graph_t dummy = {.node_count = 2, .directed = false, .weighted = true, .adj = nullptr};
     int rc = Graph::exec(&dummy, "dijkstra", 5, 1, nullptr, nullptr);
     ASSUME_ITS_EQUAL_I32(rc, -2);
     rc = Graph::exec(&dummy, "bfs", 3, 0, nullptr, nullptr);
