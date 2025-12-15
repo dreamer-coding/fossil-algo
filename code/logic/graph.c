@@ -64,11 +64,21 @@ graph_bfs(
     fossil_graph_visit_fn visit,
     void *user
 ) {
-    if (start >= graph->node_count) return -2;
+    if (!graph || start >= graph->node_count)
+        return -2;
+
+    if (graph->node_count == 0)
+        return -2;
 
     bool *visited = calloc(graph->node_count, sizeof(bool));
+    if (!visited)
+        return -1;
+
     uint64_t *queue = malloc(graph->node_count * sizeof(uint64_t));
-    if (!visited || !queue) return -1;
+    if (!queue) {
+        free(visited);
+        return -1;
+    }
 
     size_t head = 0, tail = 0;
     visited[start] = true;
@@ -80,7 +90,13 @@ graph_bfs(
         if (visit && !visit(v, user))
             break;
 
-        for (fossil_graph_edge_node_t *e = graph->adj[v]; e; e = e->next) {
+        // Defensive: adj may be NULL in stub/test graphs
+        fossil_graph_edge_node_t **adj_list = (fossil_graph_edge_node_t **)graph->adj;
+        fossil_graph_edge_node_t *edges = NULL;
+        if (adj_list)
+            edges = adj_list[v];
+
+        for (fossil_graph_edge_node_t *e = edges; e; e = e->next) {
             if (!visited[e->to]) {
                 visited[e->to] = true;
                 queue[tail++] = e->to;
@@ -110,7 +126,13 @@ dfs_visit(
     if (visit && !visit(v, user))
         return false;
 
-    for (fossil_graph_edge_node_t *e = graph->adj[v]; e; e = e->next) {
+    // Defensive: adj may be NULL in stub/test graphs
+    fossil_graph_edge_node_t **adj_list = (fossil_graph_edge_node_t **)graph->adj;
+    fossil_graph_edge_node_t *edges = NULL;
+    if (adj_list)
+        edges = adj_list[v];
+
+    for (fossil_graph_edge_node_t *e = edges; e; e = e->next) {
         if (!visited[e->to]) {
             if (!dfs_visit(graph, e->to, visited, visit, user))
                 return false;
@@ -126,10 +148,15 @@ graph_dfs(
     fossil_graph_visit_fn visit,
     void *user
 ) {
-    if (start >= graph->node_count) return -2;
+    if (!graph || start >= graph->node_count)
+        return -2;
+
+    if (graph->node_count == 0)
+        return -2;
 
     bool *visited = calloc(graph->node_count, sizeof(bool));
-    if (!visited) return -1;
+    if (!visited)
+        return -1;
 
     dfs_visit(graph, start, visited, visit, user);
     free(visited);
@@ -146,16 +173,23 @@ graph_dijkstra(
     uint64_t start,
     uint64_t target
 ) {
-    if (!graph->weighted) return -4;
-    if (start >= graph->node_count || target >= graph->node_count) return -2;
+    if (!graph || !graph->weighted)
+        return -4;
+    if (start >= graph->node_count || target >= graph->node_count)
+        return -2;
+    if (graph->node_count == 0)
+        return -2;
 
     double *dist = malloc(graph->node_count * sizeof(double));
     bool *used = calloc(graph->node_count, sizeof(bool));
-    if (!dist || !used) return -1;
+    if (!dist || !used) {
+        free(dist);
+        free(used);
+        return -1;
+    }
 
     for (size_t i = 0; i < graph->node_count; i++)
         dist[i] = DBL_MAX;
-
     dist[start] = 0.0;
 
     for (;;) {
@@ -169,7 +203,13 @@ graph_dijkstra(
 
         used[v] = true;
 
-        for (fossil_graph_edge_node_t *e = graph->adj[v]; e; e = e->next) {
+        // Defensive: adj may be NULL in stub/test graphs
+        fossil_graph_edge_node_t **adj_list = (fossil_graph_edge_node_t **)graph->adj;
+        fossil_graph_edge_node_t *edges = NULL;
+        if (adj_list)
+            edges = adj_list[v];
+
+        for (fossil_graph_edge_node_t *e = edges; e; e = e->next) {
             double alt = dist[v] + e->weight;
             if (alt < dist[e->to])
                 dist[e->to] = alt;
@@ -199,14 +239,30 @@ fossil_algorithm_graph_exec(
     if (!graph || !algorithm_id)
         return -2;
 
-    if (algorithm_equals(algorithm_id, "bfs"))
-        return graph_bfs(graph, start_node, visit, user);
+    // Check for supported algorithms
+    if (!fossil_algorithm_graph_supported(algorithm_id))
+        return -3;
 
-    if (algorithm_equals(algorithm_id, "dfs"))
-        return graph_dfs(graph, start_node, visit, user);
+    // Check for node id validity and empty graph
+    if (graph->node_count == 0)
+        return -2;
 
-    if (algorithm_equals(algorithm_id, "dijkstra"))
-        return graph_dijkstra(graph, start_node, target_node);
+    if (algorithm_equals(algorithm_id, "bfs") || algorithm_equals(algorithm_id, "dfs")) {
+        if (start_node >= graph->node_count)
+            return -2;
+        if (algorithm_equals(algorithm_id, "bfs"))
+            return graph_bfs((struct fossil_graph *)graph, start_node, visit, user);
+        else
+            return graph_dfs((struct fossil_graph *)graph, start_node, visit, user);
+    }
+
+    if (algorithm_equals(algorithm_id, "dijkstra")) {
+        if (!graph->weighted)
+            return -4;
+        if (start_node >= graph->node_count || target_node >= graph->node_count)
+            return -2;
+        return graph_dijkstra((struct fossil_graph *)graph, start_node, target_node);
+    }
 
     return -3;
 }
