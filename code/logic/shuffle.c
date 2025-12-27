@@ -31,47 +31,6 @@
 // Internal Helpers
 // ======================================================
 
-static void fossil_algorithm_shuffle_block(void *base, size_t count, size_t size, uint64_t seed)
-{
-    if (count < 2) return;
-
-    unsigned char *data = (unsigned char *)base;
-    size_t block_size = (count < 16) ? 1 : 16; // AI-inspired heuristic
-    srand((unsigned int)(seed & 0xFFFFFFFFULL));
-
-    // shuffle blocks
-    for (size_t i = count - 1; i > 0; i -= block_size)
-    {
-        size_t j = (size_t)(rand() % ((i / block_size) + 1)) * block_size;
-        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, block_size * size);
-    }
-
-    // then shuffle elements inside each block
-    for (size_t b = 0; b < count; b += block_size)
-    {
-        size_t end = (b + block_size > count) ? count : b + block_size;
-        for (size_t i = b + 1; i < end; ++i)
-        {
-            size_t j = b + (size_t)(rand() % (i - b + 1));
-            fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
-        }
-    }
-}
-
-static void fossil_algorithm_shuffle_sattolo(void *base, size_t count, size_t size, uint64_t seed)
-{
-    if (count < 2) return;
-
-    unsigned char *data = (unsigned char *)base;
-    srand((unsigned int)(seed & 0xFFFFFFFFULL));
-
-    for (size_t i = count - 1; i > 0; --i)
-    {
-        size_t j = (size_t)(rand() % i); // note: % i, not % (i+1)
-        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
-    }
-}
-
 static uint64_t fossil_algorithm_shuffle_rand_seed(uint64_t seed, const char *mode_id)
 {
     if (mode_id == NULL || strcmp(mode_id, "auto") == 0)
@@ -157,6 +116,47 @@ static void fossil_algorithm_shuffle_inside_out(void *base, size_t count, size_t
         size_t j = (size_t)(rand() % (i + 1));
         if (j != i)
             fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
+    }
+}
+
+static void fossil_algorithm_shuffle_block(void *base, size_t count, size_t size, uint64_t seed)
+{
+    if (count < 2) return;
+
+    unsigned char *data = (unsigned char *)base;
+    size_t block_size = (count < 16) ? 1 : 16; // AI-inspired heuristic
+    srand((unsigned int)(seed & 0xFFFFFFFFULL));
+
+    // shuffle blocks
+    for (size_t i = count - 1; i > 0; i -= block_size)
+    {
+        size_t j = (size_t)(rand() % ((i / block_size) + 1)) * block_size;
+        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, block_size * size);
+    }
+
+    // then shuffle elements inside each block
+    for (size_t b = 0; b < count; b += block_size)
+    {
+        size_t end = (b + block_size > count) ? count : b + block_size;
+        for (size_t i = b + 1; i < end; ++i)
+        {
+            size_t j = b + (size_t)(rand() % (i - b + 1));
+            fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
+        }
+    }
+}
+
+static void fossil_algorithm_shuffle_sattolo(void *base, size_t count, size_t size, uint64_t seed)
+{
+    if (count < 2) return;
+
+    unsigned char *data = (unsigned char *)base;
+    srand((unsigned int)(seed & 0xFFFFFFFFULL));
+
+    for (size_t i = count - 1; i > 0; --i)
+    {
+        size_t j = (size_t)(rand() % i); // note: % i, not % (i+1)
+        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
     }
 }
 
