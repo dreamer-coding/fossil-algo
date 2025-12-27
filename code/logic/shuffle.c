@@ -31,6 +31,47 @@
 // Internal Helpers
 // ======================================================
 
+static void fossil_algorithm_shuffle_block(void *base, size_t count, size_t size, uint64_t seed)
+{
+    if (count < 2) return;
+
+    unsigned char *data = (unsigned char *)base;
+    size_t block_size = (count < 16) ? 1 : 16; // AI-inspired heuristic
+    srand((unsigned int)(seed & 0xFFFFFFFFULL));
+
+    // shuffle blocks
+    for (size_t i = count - 1; i > 0; i -= block_size)
+    {
+        size_t j = (size_t)(rand() % ((i / block_size) + 1)) * block_size;
+        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, block_size * size);
+    }
+
+    // then shuffle elements inside each block
+    for (size_t b = 0; b < count; b += block_size)
+    {
+        size_t end = (b + block_size > count) ? count : b + block_size;
+        for (size_t i = b + 1; i < end; ++i)
+        {
+            size_t j = b + (size_t)(rand() % (i - b + 1));
+            fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
+        }
+    }
+}
+
+static void fossil_algorithm_shuffle_sattolo(void *base, size_t count, size_t size, uint64_t seed)
+{
+    if (count < 2) return;
+
+    unsigned char *data = (unsigned char *)base;
+    srand((unsigned int)(seed & 0xFFFFFFFFULL));
+
+    for (size_t i = count - 1; i > 0; --i)
+    {
+        size_t j = (size_t)(rand() % i); // note: % i, not % (i+1)
+        fossil_algorithm_shuffle_swap(data + i * size, data + j * size, size);
+    }
+}
+
 static uint64_t fossil_algorithm_shuffle_rand_seed(uint64_t seed, const char *mode_id)
 {
     if (mode_id == NULL || strcmp(mode_id, "auto") == 0)
@@ -132,45 +173,26 @@ int fossil_algorithm_shuffle_exec(
     uint64_t seed)
 {
     if (!base || count == 0 || !type_id)
-        return -1; // invalid input
+        return -1;
 
     size_t size = fossil_algorithm_shuffle_type_sizeof(type_id);
     if (size == 0)
-        return -2; // unknown type
+        return -2;
 
     const char *algo = algorithm_id ? algorithm_id : "auto";
     uint64_t final_seed = fossil_algorithm_shuffle_rand_seed(seed, mode_id);
 
-    // -----------------------------
-    // AI-inspired auto selection
-    // -----------------------------
+    // Algorithm selection
     if (strcmp(algo, "auto") == 0) {
-        // Small arrays → inside-out (better cache usage)
         if (count < 32) {
             fossil_algorithm_shuffle_inside_out(base, count, size, final_seed);
-            return 0;
+        } else if (size > 16) {
+            fossil_algorithm_shuffle_block(base, count, size, final_seed);
+        } else if (!strcmp(type_id, "cstr") || !strcmp(type_id, "any")) {
+            fossil_algorithm_shuffle_sattolo(base, count, size, final_seed);
+        } else {
+            fossil_algorithm_shuffle_fisher_yates(base, count, size, final_seed);
         }
-
-        // Pointer or large types → inside-out (reduces memory swaps)
-        if (!strcmp(type_id, "cstr") || size > 16) {
-            fossil_algorithm_shuffle_inside_out(base, count, size, final_seed);
-            return 0;
-        }
-
-        // Default → Fisher-Yates
-        fossil_algorithm_shuffle_fisher_yates(base, count, size, final_seed);
-        return 0;
-    }
-
-    // -----------------------------
-    // Explicit algorithm dispatch
-    // -----------------------------
-    if (strcmp(algo, "fisher-yates") == 0) {
-        fossil_algorithm_shuffle_fisher_yates(base, count, size, final_seed);
-        return 0;
-    }
-    if (strcmp(algo, "inside-out") == 0) {
-        fossil_algorithm_shuffle_inside_out(base, count, size, final_seed);
         return 0;
     }
 
