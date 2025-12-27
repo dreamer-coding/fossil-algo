@@ -80,7 +80,6 @@ typedef void (*fossil_algorithm_reduce_fn)(
  * @param count       Number of elements
  * @param type_id     Data type identifier ("i32", "f64", etc.)
  * @param op_id       Reduction operation ("sum", "min", "max", "count", "custom")
- * @param mode_id     Execution mode ("auto", "lane", "deterministic")
  * @param lanes       Number of virtual lanes (0 = auto)
  * @param out_result  Pointer to output accumulator
  * @param reduce_fn   Custom reducer (required if op_id == "custom")
@@ -97,7 +96,6 @@ int fossil_algorithm_reduce_exec(
     size_t count,
     const char *type_id,
     const char *op_id,
-    const char *mode_id,
     size_t lanes,
     void *out_result,
     fossil_algorithm_reduce_fn reduce_fn,
@@ -142,7 +140,6 @@ public:
         const std::string &type_id,
         void *out_result,
         const std::string &op_id = "auto",
-        const std::string &mode_id = "auto",
         size_t lanes = 0,
         fossil_algorithm_reduce_fn fn = nullptr,
         void *user = nullptr
@@ -152,7 +149,6 @@ public:
             count,
             type_id.c_str(),
             op_id.c_str(),
-            mode_id.c_str(),
             lanes,
             out_result,
             fn,
