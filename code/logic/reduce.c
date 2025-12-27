@@ -176,7 +176,6 @@ int fossil_algorithm_reduce_exec(
     size_t count,
     const char *type_id,
     const char *op_id,
-    const char *mode_id,
     size_t lanes,
     void *out_result,
     fossil_algorithm_reduce_fn reduce_fn,
