@@ -45,10 +45,6 @@
  * | Extended    | "hex", "oct", "bin", "size", "datetime", "duration" |
  * | Generic     | "any", "null"                 |
  */
-#define FOSSIL_SORT_SUPPORTED_TYPE_IDS \
-    "i8, i16, i32, i64, u8, u16, u32, u64, " \
-    "f32, f64, cstr, char, bool, " \
-    "hex, oct, bin, size, datetime, duration, any, null"
 
 /**
  * @brief Supported algorithm identifiers for @ref fossil_algorithm_sort_exec.
@@ -64,8 +60,6 @@
  * | "counting" | Counting sort (integer range keys only)   |
  * | "bubble"   | Bubble sort (testing/educational only)    |
  */
-#define FOSSIL_SORT_SUPPORTED_ALGO_IDS \
-    "auto, merge, heap, insertion, shell, radix, counting, bubble"
 
 /**
  * @brief Supported order identifiers for @ref fossil_algorithm_sort_exec.
@@ -73,7 +67,6 @@
  * - "asc"  → ascending order (default)
  * - "desc" → descending order
  */
-#define FOSSIL_SORT_SUPPORTED_ORDER_IDS "asc, desc"
 
 // ======================================================
 // Local helpers
@@ -543,7 +536,7 @@ static int fossil_sort_radix_stub(
 }
 
 // ======================================================
-// Algorithm dispatch (all algorithms implemented as stubs)
+// Algorithm dispatch
 // ======================================================
 
 int fossil_algorithm_sort_exec(
