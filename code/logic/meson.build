@@ -9,6 +9,7 @@ dep = [
 fossil_algorithm_lib = library('fossil_algo',
     files(
         'sort.c',
+        'reduce.c',
         'search.c',
         'filter.c',
         'cstring.c',
